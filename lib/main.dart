@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'dart:developer';
-import 'package:permission_handler/permission_handler.dart';
+import 'dart:developer'; // logd
+import 'package:permission_handler/permission_handler.dart';   // permission
+import 'package:http/http.dart' as http;  // api
 import 'package:fluttertoast/fluttertoast.dart';
 
 
@@ -47,12 +48,29 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+// TODO img class make
+class ImgClass {
+  final int id;
+
+  ImgClass(this.id);
+
+}
+
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   // ignore: non_constant_identifier_names
   double _icon_size = 200;
   double _radius = 50;
+  double _text_field_width = 300;
   int _color= 0xFFFC6A7F;
+
+  final TextEditingController _textController = new TextEditingController();
+
+  Future<http.Response> fetchPost() {
+    return http.get('http://tcp.kuvh.kr:8000/v1/list/');
+  }
+
+  void _handleSubmitted(String text) { _textController.clear(); }
 
   void _incrementCounter() {
     setState(() {
@@ -115,6 +133,29 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Image.asset("assets/logo.png"),
                 ),
               ],
+            ),
+
+            new Container(
+              width: _text_field_width,
+              child: TextField(
+                keyboardType: TextInputType.text,
+                controller: _textController,
+                onSubmitted: _handleSubmitted,
+                decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: "search"
+                ),
+              ),
+            ),
+
+            new Container(
+              margin: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+              child: FloatingActionButton(
+                onPressed: () => _handleSubmitted(_textController.text),
+                tooltip: 'search',
+                backgroundColor: Color(_color),
+                child: Icon(Icons.search),
+              ),
             ),
             Text(
               'You have pushed the button this many times:',
