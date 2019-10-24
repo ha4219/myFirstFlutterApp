@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'dart:developer'; // logd
+import 'package:permission_handler/permission_handler.dart';   // permission
+import 'package:http/http.dart' as http;  // api
+import 'package:fluttertoast/fluttertoast.dart';
+
 
 void main() => runApp(MyApp());
 
@@ -43,8 +48,29 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+// TODO img class make
+class ImgClass {
+  final int id;
+
+  ImgClass(this.id);
+
+}
+
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  // ignore: non_constant_identifier_names
+  double _icon_size = 200;
+  double _radius = 50;
+  double _text_field_width = 300;
+  int _color= 0xFFFC6A7F;
+
+  final TextEditingController _textController = new TextEditingController();
+
+  Future<http.Response> fetchPost() {
+    return http.get('http://tcp.kuvh.kr:8000/v1/list/');
+  }
+
+  void _handleSubmitted(String text) { _textController.clear(); }
 
   void _incrementCounter() {
     setState(() {
@@ -54,7 +80,20 @@ class _MyHomePageState extends State<MyHomePage> {
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
       _counter++;
+      _showToast("Download Image");
     });
+  }
+
+  void _showToast(String msg) {
+    Fluttertoast.showToast(
+        msg: msg,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIos: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0
+    );
   }
 
   @override
@@ -66,11 +105,6 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
@@ -91,6 +125,38 @@ class _MyHomePageState extends State<MyHomePage> {
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            new Stack(
+              children: <Widget>[
+                new Container(
+                  height: _icon_size,
+                  width: _icon_size,
+                  child: Image.asset("assets/logo.png"),
+                ),
+              ],
+            ),
+
+            new Container(
+              width: _text_field_width,
+              child: TextField(
+                keyboardType: TextInputType.text,
+                controller: _textController,
+                onSubmitted: _handleSubmitted,
+                decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: "search"
+                ),
+              ),
+            ),
+
+            new Container(
+              margin: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+              child: FloatingActionButton(
+                onPressed: () => _handleSubmitted(_textController.text),
+                tooltip: 'search',
+                backgroundColor: Color(_color),
+                child: Icon(Icons.search),
+              ),
+            ),
             Text(
               'You have pushed the button this many times:',
             ),
@@ -103,8 +169,9 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
+        tooltip: 'Download',
+        backgroundColor: Color(_color),
+        child: Icon(Icons.file_download),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
